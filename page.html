@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Todo</title>
+	<link rel="stylesheet" type="text/css" href="./iconfont.css">
+	<style type="text/css">
+		* {
+			margin: 0px;
+			padding: 0px;
+			text-decoration: none;
+			list-style: none;
+		}
+		body {
+			font-family: "Microsoft Yahei";
+			background: url(./img/bg.png);
+			/*background-size: cover;*/
+			height: 100vh;
+			display: flex;
+			justify-content: center;
+		}
+		[v-cloak]{
+			display: none;
+		}
+		#app {
+			background-color: rgb(0,188,212);
+			position: relative;
+			width: 61.8vh;
+			margin: 10px;
+			box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 1);
+		}
+		.clear:after {
+			content: "";
+			display: block;
+			clear: both;
+		}
+
+		#signInAndSignUp {
+			text-align: center;
+		}
+		#signInAndSignUp .btn {
+			display: inline-block;
+			font-size: 25px;
+			color: white;
+			background-color: rgba(0,0,0,0.5);
+			padding: 10px 20px;
+			cursor: pointer;
+			margin:0 20px 20px 0;
+			border-radius: 5px;
+		}
+		#signInAndSignUp .btn:hover {
+			background-color: rgba(0,0,0,0.7);
+		}
+		#signInAndSignUp .btn.active {
+			background-color: rgba(0,0,0,0.9);
+		}
+		#signInAndSignUp .word {
+			display: inline-block;
+			width: 70px;
+		}
+		#signInAndSignUp .sub-btn {
+			display: block;
+			width: 270px;
+			font-size: 15px;
+			border: none;
+			background-color: rgba(0,0,0,0.8);
+			color: white;
+			padding: 0 120px;
+			margin: 10px auto ; 
+			cursor: pointer;
+			border-radius: 3px;
+			line-height: 45px;
+		}
+		#signInAndSignUp input {
+			width: 248px;
+			padding: 15px 10px;
+			border: none;
+		}
+		#signInAndSignUp input:focus {
+			outline: 0;
+		}
+		#signInAndSignUp .group-input {
+			margin: 0 auto;
+			width: 268px;
+			border-radius: 3px;
+			border: 1px solid #d5d5d5;
+		}
+		#signInAndSignUp .fromRow:nth-child(2){
+			border-top: 1px solid #e8e8e8;
+		}
+		.logo {
+			padding-top: 80px;
+			text-align: center;
+		}
+		.logo .iconfont {
+			font-size: 100px;
+			margin: 40px;
+		}
+		.logo p {
+			margin: 30px 0;
+			font-size: 18px;
+			font-weight: 400;
+		}
+		.newTask input {
+			box-sizing: border-box;
+			font-size: 20px;
+			width: 100%;
+			color: black;
+			text-align: center;
+			padding: 10px 20px;
+			border-style: none;
+			margin-top: 40px;
+		}
+		.newTask {
+			text-align: center;
+			padding-bottom: 40px;
+		}
+		.todos li {
+			text-align: center;
+			margin: 15px;
+		}
+		.todos input {
+			text-align: left;
+		}
+		.todos div {
+			display: inline-block;
+			width: 300px;
+		}
+		.todos .close {
+			cursor: pointer;
+		}
+		.todos span {
+			margin: 0 20px;
+		}
+		.todos .time {
+			display: inline-block;
+			width: 250px;
+		}
+		.todos .no-done {
+			color: red;
+		}
+		#todo .user {
+			position: absolute;
+			right: 0;
+			top: 10px;
+		}
+		#todo .user-data>li {
+			float: right;
+			background-color: rgba(0,0,0,0.2);
+			padding: 3px 8px;
+			border-radius: 2px;
+			margin: 10px 20px 0 0;
+			cursor: pointer;
+		}
+		#todo .user-data>li:hover {
+			background-color: rgba(0,0,0,0.4);
+		}
+		#footer {
+			width: 200px;
+			left: 50%;
+			margin-left: -100px;
+			position: absolute;
+			bottom: 20px;
+		}
+ 	</style>
+</head>
+<body>
+<div id="app" v-cloak>
+	<div class="logo">
+		<i class="iconfont icon-todo"></i>
+		<p>A Todo List APP</p>
+	</div>
+	<section id="signInAndSignUp" v-if="!currentUser">
+		<div>
+			<label><span class="btn active" v-on:click="changeToSignUp">注册</span></label>
+			<label><span class="btn" v-on:click="changeToSignIn">登录</span></label>
+		</div>
+		<div class="signUp sign" v-if="actionType=='signUp'">
+			<form  @submit.prevent=signUp>
+				<div class="group-input">
+					<div class="fromRow">
+						<input type="text" v-model="formData.user" placeholder="用户名">
+					</div>
+					<div class="fromRow">
+						<input type="password" v-model="formData.password" placeholder="密码">
+					</div>
+				</div>
+				<div class="formActions">
+					<input class="sub-btn" type="submit" value="注册">
+				</div>
+			</form>
+		</div>
+		<div class="signIn sign" v-if="actionType=='signIn'">
+			<form @submit.prevent=login>
+				<div class="group-input">
+					<div class="fromRow">
+						<input type="text" v-model="formData.user" placeholder="用户名">
+					</div>
+					<div class="fromRow">
+						<input type="password" v-model="formData.password" placeholder="密码">
+					</div>
+				</div>
+				<div class="formActions">
+					<input class="sub-btn" type="submit" value="登录">
+				</div>
+			</form>
+		</div>
+	</section>
+
+	<section id="todo" v-if="currentUser">
+		<div class="user">
+			<ul class="user-data clear">
+				<li v-on:click="logout">登出</li>
+				<li>{{currentUser.username}}</li>
+			</ul>
+		</div>
+		<div class="newTask" >
+			<input type="text" placeholder="请在这里输入待办事项" v-model="newTodo" v-on:keyup.enter="submit">
+		</div>
+		<ol class="todos">
+			<li v-for="(item, index) in todoList">
+				<input type="checkbox" v-model="item.done">
+				<div>{{item.title}}</div>
+				<span v-if="item.done">已完成</span>
+				<span class="no-done" v-else>未完成</span>
+				<span class="time">创建于{{item.createAt}}</span>
+				<span class="close" v-on:click="deleteTodo"><i class="iconfont icon-guanbi"></i></span>
+			</li>
+		</ol>		
+	</section>
+	<div id="footer">
+		<small>Copyright @ <a href="https://github.com/ReedSun/Resume" target="_blank">ReedSun </a>2017</small>
+	</div>
+</div>
+<script src="bundle.js"></script>
+</body>
+</html>
